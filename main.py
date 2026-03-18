@@ -1,6 +1,13 @@
-from importlib import reload
+import os
+
 from fastapi import FastAPI
+from langchain_openai import ChatOpenAI
 import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
+
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
 app = FastAPI()
 
@@ -10,7 +17,12 @@ def read_root():
 
 @app.post("/agent")
 def call_agent(msg: str):
-    return msg
+    try:
+        model = ChatOpenAI(model="gpt-5", api_key=openai_api_key)
+        response = model.invoke(msg)
+        return response.content
+    except Exception as err:
+        return f"{err}"   
 
 
 if __name__ == "__main__":
